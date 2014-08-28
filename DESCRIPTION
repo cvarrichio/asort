@@ -1,9 +1,11 @@
 Package: isort
-Type: Package
-Title: What the package does (short line)
-Version: 1.0
-Date: 2014-08-19
-Author: Who wrote it
-Maintainer: Who to complain to <yourfault@somewhere.net>
-Description: More about what it does (maybe more than one line)
-License: What license is it under?
+Title: Generalized sorting of R objects
+Version: 0.9
+Date: 2014-08-21
+Author: Craig Varrichio <canthony427@gmail.com>
+Maintainer: Craig Varrichio <canthony427@gmail.com>
+Description:  A generalized insertion sort that works on all data types.  Using this as a replacement to sort or order would be an inefficient choice. However, implementing complex distance algorithms allows for unusual applications, such as arbitrary sorting criteria, clustering, and solving the travelling salesman problem.
+Depends:
+    R (>= 3.1.0),rowr
+License: GPL-3
+LazyData: true

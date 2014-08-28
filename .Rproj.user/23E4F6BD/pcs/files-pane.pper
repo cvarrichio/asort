@@ -1,0 +1,9 @@
+{
+    "path" : "~/Analytics/Source/isort",
+    "sortOrder" : [
+        {
+            "ascending" : true,
+            "columnIndex" : 2
+        }
+    ]
+}
