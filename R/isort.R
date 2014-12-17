@@ -63,7 +63,7 @@ neighborDistances<-function()
       if(len(data)<2)
         result<-0
       else
-        result<-rollApply(data,window=2,minimum=2,align='right', fun=function (data) distance(head(data,1),tail(data,1)))  
+        result<-rollApply(data,window=2,minimum=1,align='right', fun=function (data) distance(head(data,1),tail(data,1)))  
       return(buffer(result,length.out=len(data),fill=0))
     }
   }
@@ -99,27 +99,28 @@ insert<-function()
 
 insert<-function()
 {
-  function(headDistance,tailDistance)
+  function(distance)
   {
     function(data,insert)
     {
       ##Get old stances
       oldDistances<-c(data[['distances']],0)
-      headInsertDistances<-distances()(headDistance)(data,insert)
-      tailInsertDistances<-distances()(tailDistance)(data,insert)
+      headInsertDistances<-c(0,distances()(distance)(data,head(insert,n=1)))
+      tailInsertDistances<-c(distances()(distance)(data,tail(insert,n=1)),0)
       ##Determine combined distance increase
-      combinedDistances<-
+      combinedDistances<-headInsertDistances+tailInsertDistances
       ##Determine combined change in distances
       deltaDistances<-combinedDistances-oldDistances
       ##Insert where delta is smallest
       insertIndex=which.min(deltaDistances)
-      result<-insertRow(data,insert,insertIndex)
+      result<-insertRows(data,insert,insertIndex)
       ##Update distances
       #       print('Next')
-      #       print(as.list(environment()))
-      result[insertIndex,'distances']<-insertDistances[insertIndex]
-      if(isTRUE(insertIndex<length(insertDistances)))
-        result[insertIndex+1,'distances']<-insertDistances[insertIndex+1]
+            
+      result[insertIndex,'distances']<-headInsertDistances[insertIndex]
+      if(isTRUE(insertIndex<len(result)))
+        result[insertIndex+len(insert),'distances']<-tailInsertDistances[insertIndex]
+#       print(as.list(environment()))
       return(result)      
     }
   }
@@ -154,7 +155,7 @@ insertionSort<-function()
       ##Add distance column
       data$distances<-0
       dataList<-split(data,1:nrow(data))
-      result<-Reduce(insert()(distances()(distance)),dataList)
+      result<-Reduce(insert()(distance),dataList)
       return(result)
     }
   }
@@ -217,7 +218,7 @@ splitRecurse<-function(threshold)
       dataList<-split(data,splits)
       result<-lapply(dataList,splitRecurse(threshold)(distance))
       #result<-mergeTree()(distance)(result[[1]],result[[2]])
-      #result<-rbind(result[[1]],result[[2]])
+      result<-rbind(result[[1]],result[[2]])
       return(result)
     }
   }
@@ -249,11 +250,17 @@ connectTree<-function()
   }
 }
 
-merge<-function()
+resort<-function(condition)
 {
   function(distance)
   {
-    function(data,insert)
+    function(data)
+    {
+      data$distances<-neighborDistances()(distance)(data)
+      dataList<-splitWhere(condition)(data)
+      result<-Reduce(insert()(distance),dataList)
+      return(result)
+    }
   }
 }
 
